@@ -1,7 +1,6 @@
-import { neon } from "@neondatabase/serverless"
+// <CHANGE> Replaced Neon database client with Vercel Postgres for Amazon RDS compatibility
+import { sql } from "@vercel/postgres"
 import { type NextRequest, NextResponse } from "next/server"
-
-const sql = neon(process.env.DATABASE_URL!)
 
 export async function GET(request: NextRequest) {
   try {
@@ -12,7 +11,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid difficulty" }, { status: 400 })
     }
 
-    const leaderboard = await sql`
+    // <CHANGE> Updated query syntax for @vercel/postgres
+    const result = await sql`
       SELECT player_name, time_seconds, created_at
       FROM leaderboards 
       WHERE difficulty = ${difficulty}
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       LIMIT 10
     `
 
-    return NextResponse.json({ leaderboard })
+    return NextResponse.json({ leaderboard: result.rows })
   } catch (error) {
     console.error("Error fetching leaderboard:", error)
     return NextResponse.json({ error: "Failed to fetch leaderboard" }, { status: 500 })
@@ -47,13 +47,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Player name too long" }, { status: 400 })
     }
 
+    // <CHANGE> Updated query syntax for @vercel/postgres
     const result = await sql`
       INSERT INTO leaderboards (player_name, difficulty, time_seconds)
       VALUES (${playerName}, ${difficulty}, ${timeSeconds})
       RETURNING id
     `
 
-    return NextResponse.json({ success: true, id: result[0].id })
+    return NextResponse.json({ success: true, id: result.rows[0].id })
   } catch (error) {
     console.error("Error submitting score:", error)
     return NextResponse.json({ error: "Failed to submit score" }, { status: 500 })
