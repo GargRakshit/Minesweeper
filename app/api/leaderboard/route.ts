@@ -1,8 +1,8 @@
-import { createClient } from "@vercel/postgres";
+import { Client } from "pg";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const client = createClient({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
+  const client = new Client({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
   try {
     await client.connect();
     const { searchParams } = new URL(request.url);
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid difficulty" }, { status: 400 });
     }
 
-    const result = await client.sql`
+    const result = await client.query`
       SELECT player_name, time_seconds, created_at
       FROM leaderboards 
       WHERE difficulty = ${difficulty}
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const client = createClient({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
+  const client = new Client({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
   try {
     await client.connect();
     const { playerName, difficulty, timeSeconds } = await request.json();
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Player name too long" }, { status: 400 });
     }
 
-    const result = await client.sql`
+    const result = await client.query`
       INSERT INTO leaderboards (player_name, difficulty, time_seconds)
       VALUES (${playerName}, ${difficulty}, ${timeSeconds})
       RETURNING id
