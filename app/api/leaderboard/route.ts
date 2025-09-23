@@ -13,13 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Invalid difficulty" }, { status: 400 });
     }
 
-    const result = await client.query`
-      SELECT player_name, time_seconds, created_at
-      FROM leaderboards 
-      WHERE difficulty = ${difficulty}
-      ORDER BY time_seconds ASC
-      LIMIT 10
-    `;
+    const result = await client.query(
+      `SELECT player_name, time_seconds, created_at FROM leaderboards WHERE difficulty = $1 ORDER BY time_seconds ASC LIMIT 10`,
+      [difficulty]
+    );
 
     return NextResponse.json({ leaderboard: result.rows });
   } catch (error) {
@@ -53,11 +50,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Player name too long" }, { status: 400 });
     }
 
-    const result = await client.query`
-      INSERT INTO leaderboards (player_name, difficulty, time_seconds)
-      VALUES (${playerName}, ${difficulty}, ${timeSeconds})
-      RETURNING id
-    `;
+    const result = await client.query(
+      `INSERT INTO leaderboards (player_name, difficulty, time_seconds) VALUES ($1, $2, $3) RETURNING id`,
+      [playerName, difficulty, timeSeconds]
+    );
 
     return NextResponse.json({ success: true, id: result.rows[0].id });
   } catch (error) {
