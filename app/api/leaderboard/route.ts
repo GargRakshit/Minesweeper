@@ -2,7 +2,7 @@ import { Client } from "pg";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  const client = new Client({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
+  const client = new Client({ connectionString: process.env.POSTGRES_URL });
   try {
     await client.connect();
     const { searchParams } = new URL(request.url);
@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const client = new Client({ connectionString: process.env.POSTGRES_URL_NON_POOLING });
+  const client = new Client({ connectionString: process.env.POSTGRES_URL });
   try {
     await client.connect();
     const { playerName, difficulty, timeSeconds } = await request.json();

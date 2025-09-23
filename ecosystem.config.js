@@ -10,7 +10,7 @@ module.exports = {
       env: {
         NODE_ENV: "production",
         PORT: 3000,
-        POSTGRES_URL_NON_POOLING: "postgresql://postgres:Aaryav7934@minesweeper-db.cvecaus80mud.ap-south-1.rds.amazonaws.com:5432/postgres",
+        POSTGRES_URL: "postgresql://postgres:Aaryav7934@minesweeper-db.cvecaus80mud.ap-south-1.rds.amazonaws.com:5432/postgres",
       },
       error_file: "/var/log/pm2/minesweeper-error.log",
       out_file: "/var/log/pm2/minesweeper-out.log",
