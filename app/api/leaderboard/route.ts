@@ -2,7 +2,7 @@ import { Client } from "pg";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  console.log('POSTGRES_URL:', process.env.POSTGRES_URL);
+  
   const client = new Client({ connectionString: process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  console.log('POSTGRES_URL:', process.env.POSTGRES_URL);
+  
   const client = new Client({ connectionString: process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
