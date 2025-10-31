@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 interface LeaderboardEntry {
   player_name: string
   time_seconds: number
+  time_milliseconds?: number
   created_at: string
 }
 
@@ -41,10 +42,11 @@ export function Leaderboard({ difficulty, isOpen, onClose }: LeaderboardProps) {
     }
   }, [isOpen, difficulty])
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return mins > 0 ? `${mins}:${secs.toString().padStart(2, "0")}` : `${secs}s`
+  const formatTime = (milliseconds: number) => {
+    const totalSeconds = milliseconds / 1000
+    const mins = Math.floor(totalSeconds / 60)
+    const secs = totalSeconds % 60
+    return mins > 0 ? `${mins}:${secs.toFixed(3).padStart(6, "0")}` : `${secs.toFixed(3)}s`
   }
 
   return (
@@ -66,7 +68,7 @@ export function Leaderboard({ difficulty, isOpen, onClose }: LeaderboardProps) {
                     <Badge variant={index === 0 ? "default" : "outline"}>#{index + 1}</Badge>
                     <span className="font-medium">{entry.player_name}</span>
                   </div>
-                  <span className="font-mono text-sm">{formatTime(entry.time_seconds)}</span>
+                  <span className="font-mono text-sm">{formatTime(entry.time_milliseconds || entry.time_seconds * 1000)}</span>
                 </div>
               ))}
             </div>
@@ -84,11 +86,11 @@ interface SubmitScoreDialogProps {
   isOpen: boolean
   onClose: () => void
   difficulty: string
-  timeSeconds: number
+  timeMilliseconds: number
   onSubmitted: () => void
 }
 
-export function SubmitScoreDialog({ isOpen, onClose, difficulty, timeSeconds, onSubmitted }: SubmitScoreDialogProps) {
+export function SubmitScoreDialog({ isOpen, onClose, difficulty, timeMilliseconds, onSubmitted }: SubmitScoreDialogProps) {
   const [playerName, setPlayerName] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
@@ -106,7 +108,7 @@ export function SubmitScoreDialog({ isOpen, onClose, difficulty, timeSeconds, on
         body: JSON.stringify({
           playerName: playerName.trim(),
           difficulty: difficulty.toLowerCase(),
-          timeSeconds,
+          timeMilliseconds,
         }),
       })
 
@@ -126,10 +128,11 @@ export function SubmitScoreDialog({ isOpen, onClose, difficulty, timeSeconds, on
     }
   }
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return mins > 0 ? `${mins}:${secs.toString().padStart(2, "0")}` : `${secs}s`
+  const formatTime = (milliseconds: number) => {
+    const totalSeconds = milliseconds / 1000
+    const mins = Math.floor(totalSeconds / 60)
+    const secs = totalSeconds % 60
+    return mins > 0 ? `${mins}:${secs.toFixed(3).padStart(6, "0")}` : `${secs.toFixed(3)}s`
   }
 
   return (
@@ -140,7 +143,7 @@ export function SubmitScoreDialog({ isOpen, onClose, difficulty, timeSeconds, on
         </DialogHeader>
         <div className="space-y-4 text-center">
           <div>
-            <p className="text-lg font-semibold">You won in {formatTime(timeSeconds)}!</p>
+            <p className="text-lg font-semibold">You won in {formatTime(timeMilliseconds)}!</p>
             <p className="text-sm text-muted-foreground">Difficulty: {difficulty}</p>
           </div>
 
