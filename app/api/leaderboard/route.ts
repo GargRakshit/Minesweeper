@@ -2,7 +2,7 @@ import { Client } from "pg";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  
+
   const client = new Client({ connectionString: process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
@@ -14,7 +14,7 @@ export async function GET(request: NextRequest) {
     }
 
     const result = await client.query(
-      `SELECT player_name, time_seconds, time_milliseconds, created_at FROM leaderboards WHERE difficulty = $1 ORDER BY COALESCE(time_milliseconds, time_seconds * 1000) ASC LIMIT 10`,
+      `SELECT player_name, time_milliseconds, created_at FROM leaderboards WHERE difficulty = $1 ORDER BY time_milliseconds ASC LIMIT 10`,
       [difficulty]
     );
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  
+
   const client = new Client({ connectionString: process.env.POSTGRES_URL, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
     }
 
     const result = await client.query(
-      `INSERT INTO leaderboards (player_name, difficulty, time_milliseconds, time_seconds) VALUES ($1, $2, $3, $4) RETURNING id`,
-      [playerName, difficulty, timeMilliseconds, Math.round(timeMilliseconds / 1000)]
+      `INSERT INTO leaderboards (player_name, difficulty, time_milliseconds) VALUES ($1, $2, $3) RETURNING id`,
+      [playerName, difficulty, timeMilliseconds]
     );
 
     return NextResponse.json({ success: true, id: result.rows[0].id });
